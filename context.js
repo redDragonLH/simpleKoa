@@ -1,15 +1,15 @@
-let proto = {}；
+let proto = {};
 
 // 为proto 名为property 的属性设置setter
-function delegatSet(property,name){
-  proto._defineSetter_(name,function(val){
+function delegateSet(property,name){
+  proto.__defineSetter__(name,function(val){
     this[property][name] = val;
   });
 }
 
 // 为 proto名为property 的属性设置gettet
-function delegatGet(property,name){
-  proto._defineGetter_(name,function(){
+function delegateGet(property,name){
+  proto.__defineGetter__(name,function(){
     return this[property][name];
   });
 }
@@ -23,7 +23,7 @@ let responseSet = ['body','status'];
 let responseGet = responseSet;
 
 requestSet.forEach(ele => {
-  delegatSet('request',ele);
+  delegateSet('request',ele);
 });
 requestGet.forEach(ele => {
     delegateGet('request', ele);

@@ -1,14 +1,20 @@
+/**
+ * @file simpleKoa application对象
+ */
+ 
+let EventEmitter = require('events');
 let http = require('http');
 let context = require('./context');
 let request = require('./request');
 let response = require('./response');
 
-class Application {
+class Application extends EventEmitter{
   /**
    * 构造函数
    */
   constructor() {
-    this.callbackFunc;
+    super();
+    this.middlewares = [];
     this.context = context;
     this.request = request;
     this.response = response;
@@ -23,13 +29,38 @@ class Application {
    }
    
    /**
-    * 挂载回调函数
-    * @param {function} fn 回调处理函数
+    * 中间件挂载
+    * @param {function} middleware 中间件函数
     */
-    use(fn) {
-      this.callbackFunc = fn;
+    use(middleware) {
+      this.middlewares.push(middleware);
     }
     
+    /**
+     * 中间件合并方法，将中间件数组合并为一个中间件 
+     * @return {Function}
+     */
+     compose() {
+       // 将 middlewares 合并为一个函数，该函数接收一个 ctx对象
+      return async ctx => {
+        function createNext(middleware,oldNext) {
+          return async () => {
+            await middleware(ctx,oldNext);
+          }
+        }
+        
+        let len = this.middlewares.length;
+        let next = async () => {
+          return Promise.resolve();
+        };
+        for (var i = len-1; i >= 0; i--) {
+          let currentMiddleware = this.middlewares[i];
+          next = createNext(currentMiddleware,next);
+        }
+        await next();
+      }
+     }
+     
     /**
      *  获取 http server 所需的 callback 函数
      *  @return {function} fn
@@ -37,8 +68,12 @@ class Application {
      callback (){
        return (req,res) =>{
          let ctx = this.createContext(req,res);
-         let respond = () => this.responseBody(cxt)
-         this.callbackFunc(ctx).then(respond);
+         let respond = () => this.responseBody(ctx)
+         let onerror = (err) => this.onerror(err, ctx);
+         let fn = this.compose();
+         
+         // 在这里catch异常，调用onerror方法处理异常
+         return fn(ctx).then(respond).catch(onerror);
        };
      }
 /**
@@ -70,5 +105,22 @@ class Application {
       ctx.res.end(JSON.stringify(content));
     }
   }
+  /** 
+   * 错误处理
+   * @param {Object} err Error 对象
+   * @param {Object} ctx ctx 实例
+   */
+   onerror(err,ctx) {
+     if(err.code === 'ENOENT') {
+       ctx.status = 404;
+     }else {
+       ctx.status = 500;
+     }
+     let msg = err.message || 'Internal error';
+     ctx.res.end(msg);
+     // 触发 erroe 事件
+     this.emit('error',err);
+   }
+   
 }
-module.esports = Application;
+module.exports = Application;
