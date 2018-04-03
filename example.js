@@ -1,27 +1,21 @@
-let simpleKoa = require('./application');
+let simpleKoa = require('./src/application');
 let app = new simpleKoa();
 
-app.use(async ctx => {
-    throw new Error('ooops');
-});
-app.on('error', (err) => {
-    console.log(err.stack);
-});
 
 // ---------------------------------------------
-// let responseData = {};
-// app.use(async (ctx,next) => {
-//   responseData.name = 'tom';
-//   await next();
-//   ctx.body = responseData;
-// });
-// app.use(async (ctx,next) => {
-//   responseData.age = 16;
-//   await next();
-// });
-// app.use(async ctx =>{
-//   responseData.sex = 'male';
-// });
+let responseData = {};
+app.use(async (ctx,next) => {
+  responseData.name = 'tom';
+  await next();
+  ctx.body = responseData;
+});
+app.use(async (ctx,next) => {
+  responseData.age = 16;
+  await next();
+});
+app.use(async ctx =>{
+  responseData.sex = 'male';
+});
 
 
 // -------------------------------------------------------------------------

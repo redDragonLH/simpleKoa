@@ -1,0 +1,27 @@
+{
+  "name": "simplekoa",
+  "version": "0.1.0",
+  "description": "照葫芦画瓢，亦步亦趋",
+  "main": "example.js",
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "^5.0.5",
+    "should": "^13.2.1"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/redDragonLH/simpleKoa.git"
+  },
+  "keywords": [
+    "none"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/redDragonLH/simpleKoa/issues"
+  },
+  "homepage": "https://github.com/redDragonLH/simpleKoa#readme"
+}
